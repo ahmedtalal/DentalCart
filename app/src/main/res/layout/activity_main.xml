@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.drawerlayout.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".UI.MainActivity"
+    android:id="@+id/drawer_id"
+    >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:orientation="horizontal"
+            android:background="@color/colorPrimary"
+            android:id="@+id/linooo"
+            >
+
+            <androidx.appcompat.widget.Toolbar
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                android:id="@+id/toolbar_id"
+                app:title="Dental Cart"
+                android:theme="@style/ThemeOverlay.MaterialComponents.Dark"
+                />
+
+            <androidx.appcompat.widget.SearchView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                android:id="@+id/searchItem_id"
+                android:layoutDirection="rtl"
+                android:layout_alignParentRight="true"
+                app:searchIcon="@drawable/ic_search"
+                android:layout_marginRight="8dp"
+                android:theme="@style/ThemeOverlay.MaterialComponents.Dark"
+                />
+
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/frameLaouts_id"
+            android:layout_below="@+id/linooo"
+            android:layout_above="@+id/bottomNavigation_id"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            />
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            app:menu="@menu/navigationview_items"
+            android:id="@+id/bottomNavigation_id"
+            app:labelVisibilityMode="labeled"
+            android:background="@drawable/rounded_bottomnavigation"
+            />
+    </RelativeLayout>
+
+    <com.google.android.material.navigation.NavigationView
+        app:headerLayout="@layout/head_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:id="@+id/navigation_id"
+        android:layout_gravity="start"
+        app:menu="@menu/navigation_item"
+        />
+</androidx.drawerlayout.widget.DrawerLayout>
