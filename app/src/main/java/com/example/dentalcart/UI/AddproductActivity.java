@@ -21,11 +21,14 @@ import androidx.appcompat.widget.AppCompatRatingBar;
 import androidx.appcompat.widget.Toolbar;
 
 import com.example.dentalcart.Pojo.ItemModel;
+import com.example.dentalcart.Pojo.ItemModel2;
 import com.example.dentalcart.R;
 import com.example.dentalcart.Repositories.GeneralOperations;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
+
+import java.util.HashMap;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -63,7 +66,7 @@ public class AddproductActivity extends AppCompatActivity implements View.OnClic
     private DatabaseReference reference;
     private String favoriteo = null;
     private ProgressDialog progressDialog;
-    private String category = null;
+    private String category ;
 
     private String[] categoriesType = {
            "orthodontics" ,
@@ -93,6 +96,7 @@ public class AddproductActivity extends AppCompatActivity implements View.OnClic
         favoriteId.setOnClickListener(this::onClick);
         unfavoriteId.setOnClickListener(this::onClick);
 
+        // set spinner adapter------------------->>>>--------
         setSprinngItems();
     }
 
@@ -180,23 +184,23 @@ public class AddproductActivity extends AppCompatActivity implements View.OnClic
             Toast.makeText(AddproductActivity.this, "Please select category", Toast.LENGTH_SHORT).show();
             return;
         }
-        ItemModel itemModel = new ItemModel
+        ItemModel2 itemModel = new ItemModel2
                 (
+                        category ,
                         descrption,
                         discount,
                         favoriteo,
                         id,
                         name,
-                        rating,
-                        price,
-                        category
+                        price ,
+                        rating
                 );
         progressDialog = new ProgressDialog(AddproductActivity.this);
         progressDialog.setMessage("Please wait....");
         progressDialog.show();
         progressDialog.setCancelable(false);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        GeneralOperations.AddProduct(itemModel, imageUri, progressDialog, AddproductActivity.this);
+        GeneralOperations.AddProduct( itemModel , imageUri, progressDialog, AddproductActivity.this);
 
     }
 

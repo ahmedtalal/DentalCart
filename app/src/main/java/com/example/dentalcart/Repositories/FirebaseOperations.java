@@ -11,6 +11,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.example.dentalcart.Pojo.UserModel;
+import com.example.dentalcart.UI.CartActivity;
 import com.example.dentalcart.UI.LoginActivity;
 import com.example.dentalcart.UI.MainActivity;
 import com.example.dentalcart.UI.ShowproductActivity;
@@ -139,6 +140,18 @@ public class FirebaseOperations {
         });
     }
 
+    public static void updateCart(String key , HashMap<String , Object> hashMap , Context context){
+        DATABASE_REFERENCE.child("Cart").child(user.getUid()).child(key).setValue(hashMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    Toast.makeText(context , "Successfully updated" , Toast.LENGTH_LONG).show();
+                    Intent intent = new Intent(context , CartActivity.class) ;
+                    context.startActivity(intent);
+                }
+            }
+        });
+    }
     public static void updateUserInfo(String name , String email , Uri imageUri , ProgressDialog progressDialog ,Context context){
         UploadTask uploadTask;
         FirebaseStorage fbs = FirebaseStorage.getInstance();

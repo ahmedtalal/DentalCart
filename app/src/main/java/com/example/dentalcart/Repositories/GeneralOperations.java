@@ -17,7 +17,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
+import com.example.dentalcart.Pojo.CartModel;
 import com.example.dentalcart.Pojo.ItemModel;
+import com.example.dentalcart.Pojo.ItemModel2;
 import com.example.dentalcart.Pojo.ReviewsModel;
 import com.example.dentalcart.Pojo.UserModel;
 import com.example.dentalcart.R;
@@ -64,15 +66,12 @@ public class GeneralOperations {
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()){
                             Toast.makeText(context , "Successfully added" , Toast.LENGTH_LONG).show();
-                            Intent intent = new Intent(context , MainActivity.class) ;
-                            context.startActivity(intent);
-                            ((Activity)context).finish();
                         }
                     }
                 });
     }
 
-    public static void AddProduct(ItemModel itemModel , Uri imageUri , ProgressDialog progressDialog, Context context){
+    public static void AddProduct( ItemModel2 itemModel , Uri imageUri , ProgressDialog progressDialog, Context context){
         UploadTask uploadTask;
         FirebaseStorage fbs = FirebaseStorage.getInstance();
         StorageReference storageReference = fbs.getReference().child("ProductimageUrl");
@@ -91,7 +90,7 @@ public class GeneralOperations {
             public void onComplete(@NonNull Task<Uri> task) {
                 Uri retrieveUriImage = task.getResult();
                 String converImage = retrieveUriImage.toString();
-                saveInfo(itemModel , converImage , progressDialog ,context);
+                saveInfo(itemModel, converImage , progressDialog ,context);
             }
         });
 
@@ -99,21 +98,19 @@ public class GeneralOperations {
 
     }
 
-    private static void saveInfo(ItemModel itemModel, String convertImage ,ProgressDialog progressDialog ,Context context) {
-        ItemModel model = new ItemModel
-                (
-                        itemModel.getDescription() ,
-                        itemModel.getDiscount() ,
-                        itemModel.getFavorite() ,
-                        itemModel.getId() ,
-                        itemModel.getName() ,
-                        convertImage ,
-                        itemModel.getRating() ,
-                        itemModel.getPrice() ,
-                        itemModel.getCategory()
-                ) ;
+    private static void  saveInfo(ItemModel2 itemModel , String convertImage , ProgressDialog progressDialog , Context context) {
+        HashMap<String , Object> hashMap1 = new HashMap<>() ;
+        hashMap1.put("category" , itemModel.getCategory()) ;
+        hashMap1.put("description" , itemModel.getDescription() ) ;
+        hashMap1.put("discount" , itemModel.getDiscount()) ;
+        hashMap1.put("favorite" , itemModel.getFavorite()) ;
+        hashMap1.put("id" , itemModel.getId()) ;
+        hashMap1.put("name" , itemModel.getName()) ;
+        hashMap1.put("photo" , convertImage) ;
+        hashMap1.put("price" , itemModel.getPrice()) ;
+        hashMap1.put("rating" , itemModel.getRating()) ;
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child("Products").child(itemModel.getId()) ;
-        reference.setValue(model).addOnCompleteListener(new OnCompleteListener<Void>() {
+        reference.setValue(hashMap1).addOnCompleteListener(new OnCompleteListener<Void>() {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onComplete(@NonNull Task<Void> task) {
@@ -157,17 +154,15 @@ public class GeneralOperations {
 
     // this method is used to add item in cart
     public static void addProductToCart(ItemModel itemModel , Context context){
+        CartModel cartModel = new CartModel(itemModel.getId() , itemModel.getPrice() , itemModel.getName() , itemModel.getPhoto() , 1) ;
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser() ;
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance() ;
         DatabaseReference reference = firebaseDatabase.getReference().child("Cart").child(user.getUid()) ;
-        reference.child(itemModel.getId()).setValue(itemModel).addOnCompleteListener(new OnCompleteListener<Void>() {
+        reference.child(itemModel.getId()).setValue(cartModel).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()){
                     Toast.makeText(context , "Item added to cart" , Toast.LENGTH_LONG).show();
-                    Intent intent = new Intent(context , MainActivity.class) ;
-                    context.startActivity(intent);
-                    ((Activity)context).finish();
                 }
             }
         });
@@ -181,9 +176,6 @@ public class GeneralOperations {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 Toast.makeText(context , "Item removed from cart" , Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(context , MainActivity.class) ;
-                context.startActivity(intent);
-                ((Activity)context).finish();
             }
         });
     }
@@ -206,16 +198,22 @@ public class GeneralOperations {
                 Toast.makeText(context , " All Items removed from cart" , Toast.LENGTH_LONG).show();
             }
         });
-        deletePrice(context);
-    }
-
-    private static void deletePrice(Context context) {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser() ;
-        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance() ;
-        DatabaseReference reference = firebaseDatabase.getReference().child("CartTotalPrice").child(user.getUid()) ;
-        reference.setValue(null);
         Intent intent = new Intent(context , MainActivity.class) ;
         context.startActivity(intent);
         ((Activity)context).finish();
+       // deletePrice(context);
     }
+
+//    private static void deletePrice(Context context) {
+//        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser() ;
+//        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance() ;
+//        DatabaseReference reference = firebaseDatabase.getReference().child("CartTotalPrice").child(user.getUid()) ;
+//        reference.setValue(null).addOnCompleteListener(new OnCompleteListener<Void>() {
+//            @Override
+//            public void onComplete(@NonNull Task<Void> task) {
+//                Toast.makeText(context , " All Items removed from cart" , Toast.LENGTH_LONG).show();
+//            }
+//        });
+//
+//    }
 }

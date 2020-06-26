@@ -10,21 +10,6 @@
     android:background="@drawable/splashscreen"
     >
     <TextView
-        android:layout_width="80dp"
-        android:layout_height="wrap_content"
-        android:text="Skip"
-        android:textColor="#FFFFFF"
-        android:textSize="15sp"
-        android:fontFamily="monospace"
-        android:background="@drawable/rounded_skiptv"
-        android:padding="5dp"
-        android:gravity="center"
-        android:layout_marginRight="13dp"
-        android:layout_marginTop="20dp"
-        android:layout_alignParentRight="true"
-        android:id="@+id/skipTV"
-        />
-    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Dental Cart"

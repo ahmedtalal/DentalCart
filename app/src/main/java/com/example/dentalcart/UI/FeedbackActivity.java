@@ -35,7 +35,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class FeedbackActivity extends AppCompatActivity implements View.OnClickListener{
+public class FeedbackActivity extends AppCompatActivity {
 
     @BindView(R.id.reviewToolbar_id)
     Toolbar reviewToolbarId;
@@ -68,16 +68,14 @@ public class FeedbackActivity extends AppCompatActivity implements View.OnClickL
             }
         });
 
-        feebackButton.setOnClickListener(this::onClick);
-    }
-
-    @Override
-    public void onClick(View v) {
-        if (v.getId() == R.id.feebackButton){
-            String feedback = feedbackId.getText().toString() ;
-            int rating = (int) rateFeedbackId.getRating();
-            checkFields(feedback , rating) ;
-        }
+        feebackButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String feedback = feedbackId.getText().toString() ;
+                int rating = (int) rateFeedbackId.getRating();
+                checkFields(feedback , rating) ;
+            }
+        });
     }
 
     private void checkFields(String feedback, int rating) {
@@ -94,19 +92,28 @@ public class FeedbackActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void prepareFeedbackData(String feedback, int rating, String id) {
-        UserViewModel userViewModel = new ViewModelProvider(this).get(UserViewModel.class) ;
-        userViewModel.init();
-        userViewModel.getUserInfo().observe(this, new Observer<UserModel>() {
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser() ;
+        FirebaseDatabase fDB = FirebaseDatabase.getInstance() ;
+        DatabaseReference reference = fDB.getReference().child("Users").child(user.getUid()) ;
+        reference.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onChanged(UserModel userModel) {
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                UserModel userModel = dataSnapshot.getValue(UserModel.class) ;
                 String name = userModel.getName() ;
                 String photo = userModel.getPhoto();
                 Log.i("users" , userModel.getName() + photo);
                 ReviewsModel reviewsModel = new ReviewsModel(name , feedback , photo , rating) ;
                 GeneralOperations.addFeedBack(reviewsModel , id , FeedbackActivity.this);
-            }
-        });
 
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        }) ;
+        feedbackId.setText("");
+        rateFeedbackId.setRating(Float.parseFloat("0"));
     }
 
     @Override

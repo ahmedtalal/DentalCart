@@ -17,6 +17,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.example.dentalcart.R;
 import com.example.dentalcart.Repositories.FirebaseOperations;
+import com.example.dentalcart.Repositories.GeneralOperations;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.squareup.picasso.Picasso;
@@ -81,6 +82,7 @@ public class ShowproductActivity extends AppCompatActivity implements View.OnCli
         favShowProductId.setOnClickListener(this::onClick);
         addReviewShowProductId.setOnClickListener(this::onClick);
         reviewsShowId.setOnClickListener(this::onClick);
+        shareShowProductId.setOnClickListener(this::onClick);
 
     }
 
@@ -128,6 +130,10 @@ public class ShowproductActivity extends AppCompatActivity implements View.OnCli
                 break;
             case R.id.reviewsShow_id:
                 passingId(id) ;
+                break;
+            case R.id.shareShowProduct_id :
+                GeneralOperations.shareData(name , price , ShowproductActivity.this);
+                break;
         }
     }
 

@@ -32,6 +32,12 @@ public class GetAllProducts {
     }
 
     public void get(){
+        favoriteProduct.clear();
+        offerProduct.clear();
+        orthodonticsList.clear();
+        equipmentList.clear();
+        periodonticsList.clear();
+        prosthodonicsList.clear();
         ProductsViewModel viewModel = new ViewModelProvider((ViewModelStoreOwner) context).get(ProductsViewModel.class) ;
         viewModel.init();
         viewModel.getProductInfo().observe((LifecycleOwner) context, new Observer<List<ItemModel>>() {

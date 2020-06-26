@@ -3,6 +3,7 @@ package com.example.dentalcart.Repositories;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.dentalcart.Pojo.CartModel;
 import com.example.dentalcart.Pojo.ItemModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -17,8 +18,8 @@ import java.util.List;
 
 public class GetCartItemRepository {
     private static GetCartItemRepository repository ;
-    private MutableLiveData<List<ItemModel>> modelMutableLiveData = new MutableLiveData<>() ;
-    private List<ItemModel> list = null ;
+    private MutableLiveData<List<CartModel>> modelMutableLiveData = new MutableLiveData<>() ;
+    private List<CartModel> list = null ;
     public static GetCartItemRepository getInstance(){
         if (repository == null){
             repository = new GetCartItemRepository() ;
@@ -26,7 +27,7 @@ public class GetCartItemRepository {
         return repository;
     }
 
-    public MutableLiveData<List<ItemModel>> getItemsFromCart(){
+    public MutableLiveData<List<CartModel>> getItemsFromCart(){
         list = new ArrayList<>() ;
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser() ;
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance() ;
@@ -35,7 +36,7 @@ public class GetCartItemRepository {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot :dataSnapshot.getChildren()){
-                    list.add(snapshot.getValue(ItemModel.class));
+                    list.add(snapshot.getValue(CartModel.class));
                 }
                 modelMutableLiveData.setValue(list);
             }

@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dentalcart.Adapters.HomeAdapter;
+import com.example.dentalcart.Pojo.CartModel;
 import com.example.dentalcart.Pojo.ItemModel;
 import com.example.dentalcart.R;
 import com.example.dentalcart.ViewModels.CartItemsViewModel;
@@ -38,6 +39,7 @@ public class HomeFragment extends Fragment {
     private Context context ;
     private CircleImageView circleImageView , addedo;
     private TextView textView ;
+    private List<CartModel> lienoo = null ;
     public HomeFragment(Context context) {
         this.context = context;
     }
@@ -104,24 +106,25 @@ public class HomeFragment extends Fragment {
         CartItemsViewModel cartItemsViewModel = new ViewModelProvider(this).get(CartItemsViewModel.class) ;
         cartItemsViewModel.init();
 
-        List<ItemModel> lienoo = new ArrayList<>() ;
-        cartItemsViewModel.getCarts().observe(this, new Observer<List<ItemModel>>() {
+        lienoo = new ArrayList<>() ;
+        // here i collection all item in cart and again store them in linoo list
+        cartItemsViewModel.getCarts().observe(this, new Observer<List<CartModel>>() {
             @Override
-            public void onChanged(List<ItemModel> itemModels) {
-                if (itemModels.size() > 0){
+            public void onChanged(List<CartModel> cartModels) {
+                if (cartModels.size() > 0){
                     textView.setVisibility(View.VISIBLE);
-                    textView.setText(String.valueOf(itemModels.size()));
-                    for (ItemModel itemModel : itemModels){
+                    textView.setText(String.valueOf(cartModels.size()));
+                    for (CartModel itemModel : cartModels){
                         lienoo.add(itemModel);
                     }
                     Log.i("soze" , lienoo.size()+"");
                 }else {
                     textView.setVisibility(View.INVISIBLE);
                 }
-
             }
         });
 
+        // here i collection all items and send them to adapter
         viewModel.getProductInfo().observe(this, new Observer<List<ItemModel>>() {
             @Override
             public void onChanged(List<ItemModel> itemModels) {

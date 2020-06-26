@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dentalcart.Adapters.CartAdapter;
+import com.example.dentalcart.Pojo.CartModel;
 import com.example.dentalcart.Pojo.ItemModel;
 import com.example.dentalcart.R;
 import com.example.dentalcart.Repositories.GeneralOperations;
@@ -28,6 +29,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -45,6 +47,8 @@ public class CartActivity extends AppCompatActivity {
     Button catrButtonId;
 
     private CartAdapter cartAdapter ;
+    private int totalPrice = 0 ;
+    private List<CartModel> list ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,17 +70,19 @@ public class CartActivity extends AppCompatActivity {
         cartRecyclerId.setLayoutManager(linearLayoutManager);
         CartItemsViewModel cartItemsViewModel = new ViewModelProvider(this).get(CartItemsViewModel.class);
         cartItemsViewModel.init();
-        cartItemsViewModel.getCarts().observe(this, new Observer<List<ItemModel>>() {
+        cartItemsViewModel.getCarts().observe(this, new Observer<List<CartModel>>() {
             @Override
-            public void onChanged(List<ItemModel> itemModels) {
-                if (itemModels.size() >0){
-                    cartAdapter = new CartAdapter(itemModels , CartActivity.this) ;
+            public void onChanged(List<CartModel> cartModels) {
+                if (cartModels.size() >0){
+                    cartAdapter = new CartAdapter(cartModels , CartActivity.this) ;
                     cartRecyclerId.setAdapter(cartAdapter);
                     cartAdapter.notifyDataSetChanged();
-                    getPrice();
                 }
             }
         });
+
+        // this method is used to calculate the total price
+        CalcTotalPrice();
 
 
         catrButtonId.setOnClickListener(new View.OnClickListener() {
@@ -87,23 +93,51 @@ public class CartActivity extends AppCompatActivity {
         });
     }
 
-    private void getPrice() {
+    // this method is used to calculate the total price
+    private void CalcTotalPrice() {
+        list = new ArrayList<>() ;
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser() ;
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance() ;
-        DatabaseReference reference = firebaseDatabase.getReference().child("CartTotalPrice").child(user.getUid()) ;
+        DatabaseReference reference = firebaseDatabase.getReference().child("Cart").child(user.getUid()) ;
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                ItemModel itemModel = dataSnapshot.getValue(ItemModel.class);
-                totalPriceId.setText("Total Price : " + itemModel.getPrice());
+                for (DataSnapshot snapshot :dataSnapshot.getChildren()){
+                    list.add(snapshot.getValue(CartModel.class));
+                    Log.i("ddd",  list.size()+ "");
+                }
+                for (CartModel cartModel : list){
+                    int quantity = cartModel.getQuantity() ;
+                    int price = Integer.parseInt(cartModel.getPrice()) ;
+                    totalPrice += (quantity * price) ;
+                }
+                totalPriceId.setText("the total price : " + totalPrice);
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
         });
+
     }
+
+//    private void getPrice() {
+//        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser() ;
+//        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance() ;
+//        DatabaseReference reference = firebaseDatabase.getReference().child("CartTotalPrice").child(user.getUid()) ;
+//        reference.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                ItemModel itemModel = dataSnapshot.getValue(ItemModel.class);
+//                totalPriceId.setText("Total Price : " + itemModel.getPrice());
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//
+//            }
+//        });
+//    }
 
     @Override
     public void onBackPressed() {

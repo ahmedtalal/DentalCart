@@ -21,6 +21,8 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.dentalcart.Pojo.CartModel;
 import com.example.dentalcart.Pojo.ItemModel;
 import com.example.dentalcart.R;
 import com.example.dentalcart.Repositories.FirebaseOperations;
@@ -28,6 +30,13 @@ import com.example.dentalcart.Repositories.GeneralOperations;
 import com.example.dentalcart.UI.MainActivity;
 import com.example.dentalcart.UI.ShowproductActivity;
 import com.example.dentalcart.ViewModels.CartItemsViewModel;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
@@ -40,8 +49,8 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.MyViewHolder> 
     private Context context ;
     private List<ItemModel> productList ;
     private List<ItemModel> productAfterFiltering ;
-    private List<ItemModel> cartList ;
-    public HomeAdapter(Context context, List<ItemModel> productList , List<ItemModel> cartList ) {
+    private List<CartModel> cartList ;
+    public HomeAdapter(Context context, List<ItemModel> productList , List<CartModel> cartList ) {
         this.context = context;
         this.productList = productList;
         this.cartList = cartList ;
@@ -59,10 +68,11 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.MyViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         ItemModel itemModel = productList.get(position) ;
+        // get items from cart ------------------>>>>>>
         if (position < cartList.size()){
-            ItemModel itemModel1  = cartList.get(position) ;
+            CartModel itemModel1  = cartList.get(position) ;
             // check if item added to cart or not
-            if (itemModel1.getId().equals(itemModel.getId())){
+            if (itemModel1.getID().equals(itemModel.getId())){
                 holder.cart.setImageResource(R.drawable.ic_shopping_cart2);
                 holder.cart.setTag("redCart");
             }else {
@@ -71,6 +81,8 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.MyViewHolder> 
             }
             Log.i("seno" , position + "");
         }
+
+        // intailize data to views
         holder.nameProductTv.setText(itemModel.getName());
         holder.priceProductTv.setText(itemModel.getPrice() + " EGP");
         holder.offerTV.setText(itemModel.getDiscount() + "%  off");
@@ -89,6 +101,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.MyViewHolder> 
                         holder.progressBar.setVisibility(View.VISIBLE);
                     }
                 });
+
         //check if dental item is favorite item or not
         if (itemModel.getFavorite().equals("true")){
             holder.favoriteImage.setImageResource(R.drawable.ic_favorito);
@@ -142,21 +155,26 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.MyViewHolder> 
             @Override
             public void onClick(View v) {
                 if (holder.cart.getTag().equals("whiteCart")){
+
+                    GeneralOperations.addProductToCart(itemModel , context);
+                    Intent intent = new Intent(context , MainActivity.class) ;
+                    context.startActivity(intent);
+                    ((Activity)context).finish();
                     holder.cart.setImageResource(R.drawable.ic_shopping_cart2);
                     holder.cart.setTag("redCart");
-                    GeneralOperations.addProductToCart(itemModel , context);
                     //((MainActivity)context).CalCartItems();
                 }else {
+                    GeneralOperations.deleteProductFromCart(itemModel.getId() , context);
+                    Intent intent = new Intent(context , MainActivity.class) ;
+                    context.startActivity(intent);
+                    ((Activity)context).finish();
                     holder.cart.setImageResource(R.drawable.ic_shopping_cart);
                     holder.cart.setTag("whiteCart");
-                    GeneralOperations.deleteProductFromCart(itemModel.getId() , context);
-                    //((MainActivity)context).CalCartItems();
                 }
             }
         });
 
     }
-
 
     @Override
     public int getItemCount() {

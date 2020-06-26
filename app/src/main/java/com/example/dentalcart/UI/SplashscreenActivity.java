@@ -18,22 +18,11 @@ import butterknife.ButterKnife;
 
 public class SplashscreenActivity extends AppCompatActivity {
 
-    @BindView(R.id.skipTV)
-    TextView skipTV;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splashscreen);
-        ButterKnife.bind(this);
-        skipTV.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(SplashscreenActivity.this , RegisterActivity.class) ;
-                startActivity(intent);
-                finish();
-            }
-        });
 
         TimerTask timerTask =  new TimerTask() {
             @Override

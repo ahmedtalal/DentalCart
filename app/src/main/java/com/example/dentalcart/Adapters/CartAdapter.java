@@ -11,18 +11,22 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.dentalcart.Pojo.CartModel;
 import com.example.dentalcart.Pojo.ItemModel;
 import com.example.dentalcart.R;
+import com.example.dentalcart.Repositories.FirebaseOperations;
 import com.example.dentalcart.Repositories.GeneralOperations;
+import com.example.dentalcart.UI.CartActivity;
 import com.squareup.picasso.Picasso;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class CartAdapter extends RecyclerView.Adapter<CartAdapter.MyViewHolder>{
-    private List<ItemModel> list ;
+    private List<CartModel> list ;
     private Context context ;
-    private int totalPrice;
-    public CartAdapter(List<ItemModel> list, Context context) {
+    private int totalPrice = 0;
+    public CartAdapter(List<CartModel> list, Context context) {
         this.list = list;
         this.context = context;
     }
@@ -37,14 +41,15 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.MyViewHolder>{
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        ItemModel itemModel = list.get(position) ;
+        CartModel itemModel = list.get(position) ;
         holder.cartNameTv.setText(itemModel.getName());
         holder.cartPriceTv.setText(itemModel.getPrice());
         Picasso.get()
-                .load(itemModel.getPhoto())
+                .load(itemModel.getImage())
                 .error(R.drawable.logo)
                 .placeholder(R.drawable.logo)
                 .into(holder.cartImage);
+        holder.cartCounterTV.setText(String.valueOf(itemModel.getQuantity()));
         // this method is used to increase price
         holder.addImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,13 +57,21 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.MyViewHolder>{
                 int result = Integer.parseInt(holder.cartCounterTV.getText().toString());
                 int price = Integer.parseInt(itemModel.getPrice()) ;
                 int newResult = result+1;
-                int calcResult = newResult * price ;
-                holder.cartPriceTv.setText(String.valueOf(calcResult));
-                holder.cartCounterTV.setText(String.valueOf(newResult));
-                Log.i("prcio" , holder.cartPriceTv.getText().toString());
-                totalPrice = totalPrice + Integer.parseInt(holder.cartPriceTv.getText().toString());
-                Log.i("preno" , totalPrice+"");
-                GeneralOperations.addTotalPrice(totalPrice);
+                //int calcResult = newResult * price ;
+                HashMap<String , Object> hashMap = new HashMap<>() ;
+                hashMap.put("id" , itemModel.getID()) ;
+                hashMap.put("price" , itemModel.getPrice()) ;
+                hashMap.put("name" , itemModel.getName()) ;
+                hashMap.put("image" , itemModel.getImage()) ;
+                hashMap.put("quantity" , newResult) ;
+                FirebaseOperations.updateCart(itemModel.getID() , hashMap , context);
+                ((CartActivity)context).finish();
+//                holder.cartPriceTv.setText(String.valueOf(calcResult));
+//                holder.cartCounterTV.setText(String.valueOf(newResult));
+//                Log.i("prcio" , holder.cartPriceTv.getText().toString());
+//                totalPrice = totalPrice + Integer.parseInt(holder.cartPriceTv.getText().toString());
+//                Log.i("preno" , totalPrice+"");
+//                GeneralOperations.addTotalPrice(totalPrice);
 
             }
         });
@@ -71,19 +84,24 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.MyViewHolder>{
                 int price = Integer.parseInt(itemModel.getPrice()) ;
                 if (result != 1){
                     int covResult = result - 1;
-                    int calcResult = covResult * price ;
-                    holder.cartCounterTV.setText(String.valueOf(covResult));
-                    holder.cartPriceTv.setText(String.valueOf(calcResult));
-                    Log.i("prcion" , totalPrice+"");
-                    totalPrice = totalPrice - Integer.parseInt(holder.cartPriceTv.getText().toString());
-                    Log.i("preno0" , totalPrice+"");
-                    GeneralOperations.addTotalPrice(totalPrice);
+                    //int calcResult = covResult * price ;
+                    HashMap<String , Object> hashMap = new HashMap<>() ;
+                    hashMap.put("id" , itemModel.getID()) ;
+                    hashMap.put("price" , itemModel.getPrice()) ;
+                    hashMap.put("name" , itemModel.getName()) ;
+                    hashMap.put("image" , itemModel.getImage()) ;
+                    hashMap.put("quantity" , covResult) ;
+                    FirebaseOperations.updateCart(itemModel.getID() , hashMap , context);
+                    ((CartActivity)context).finish();
+//                    holder.cartCounterTV.setText(String.valueOf(covResult));
+//                    holder.cartPriceTv.setText(String.valueOf(calcResult));
+//                    Log.i("prcion" , totalPrice+"");
+//                    totalPrice = totalPrice - Integer.parseInt(holder.cartPriceTv.getText().toString());
+//                    Log.i("preno0" , totalPrice+"");
+//                    GeneralOperations.addTotalPrice(totalPrice);
                 }
             }
         });
-        totalPrice = totalPrice + Integer.parseInt(holder.cartPriceTv.getText().toString());
-        Log.i("preno" , totalPrice+"");
-        GeneralOperations.addTotalPrice(totalPrice);
     }
 
     @Override
